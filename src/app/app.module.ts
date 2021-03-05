@@ -24,7 +24,7 @@ import { DomainDetailComponent } from './domains/domain-detail/domain-detail.com
 import { ConfigDetailComponent } from './configs/config-detail/config-detail.component'
 import { DeviceDetailComponent } from './devices/device-detail/device-detail.component'
 import { MomentModule } from 'ngx-moment'
-import { KvmComponent } from './devices/kvm/kvm.component';
+import { KvmComponent } from './devices/kvm/kvm.component'
 import { SolComponent } from './devices/sol/sol.component'
 
 @NgModule({

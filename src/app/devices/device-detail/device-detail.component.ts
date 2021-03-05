@@ -2,7 +2,7 @@
 * Copyright (c) Intel Corporation 2021
 * SPDX-License-Identifier: Apache-2.0
 **********************************************************************/
-import { Component, EventEmitter, OnInit, Output } from '@angular/core'
+import { Component, OnInit } from '@angular/core'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 import { of } from 'rxjs'
@@ -50,13 +50,14 @@ export class DeviceDetailComponent implements OnInit {
       action: 401
     }
   ]
-  public showSol: any = false;
+
+  public showSol: any = false
   public deviceState: number = 0
-  constructor(public snackBar: MatSnackBar, public readonly activatedRoute: ActivatedRoute, public readonly router: Router, private readonly devicesService: DevicesService) {
+  constructor (public snackBar: MatSnackBar, public readonly activatedRoute: ActivatedRoute, public readonly router: Router, private readonly devicesService: DevicesService) {
 
   }
 
-  ngOnInit(): void {
+  ngOnInit (): void {
     this.activatedRoute.params.subscribe(params => {
       this.isLoading = true
       this.deviceId = params.id
@@ -75,7 +76,7 @@ export class DeviceDetailComponent implements OnInit {
     })
   }
 
-  sendPowerAction(action: number): void {
+  sendPowerAction (action: number): void {
     this.isLoading = true
     this.devicesService.sendPowerAction(this.deviceId, action, true).pipe(
       catchError(err => {
@@ -93,7 +94,7 @@ export class DeviceDetailComponent implements OnInit {
     })
   }
 
-  async navigateTo(path: string): Promise<void> {
+  async navigateTo (path: string): Promise<void> {
     await this.router.navigate([`/devices/${this.deviceId}/${path}`])
   }
 
@@ -101,8 +102,7 @@ export class DeviceDetailComponent implements OnInit {
     this.showSol = !this.showSol
   }
 
-  deviceStatus = (state: number) => {
+  deviceStatus = (state: number): void => {
     this.deviceState = state
   }
-
 }
