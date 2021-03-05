@@ -2,7 +2,7 @@
 * Copyright (c) Intel Corporation 2021
 * SPDX-License-Identifier: Apache-2.0
 **********************************************************************/
-import { Component, OnInit } from '@angular/core'
+import { Component, EventEmitter, OnInit, Output } from '@angular/core'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 import { of } from 'rxjs'
@@ -50,18 +50,19 @@ export class DeviceDetailComponent implements OnInit {
       action: 401
     }
   ]
-
-  constructor (public snackBar: MatSnackBar, public readonly activatedRoute: ActivatedRoute, public readonly router: Router, private readonly devicesService: DevicesService) {
+  public showSol: any = false;
+  public deviceState: number = 0
+  constructor(public snackBar: MatSnackBar, public readonly activatedRoute: ActivatedRoute, public readonly router: Router, private readonly devicesService: DevicesService) {
 
   }
 
-  ngOnInit (): void {
+  ngOnInit(): void {
     this.activatedRoute.params.subscribe(params => {
       this.isLoading = true
       this.deviceId = params.id
       this.devicesService.getAuditLog(this.deviceId).pipe(
         catchError(err => {
-        // TODO: handle error better
+          // TODO: handle error better
           console.log(err)
           this.snackBar.open($localize`Error retrieving audit log`, undefined, SnackbarDefaults.defaultError)
           return of(this.auditLogData)
@@ -74,9 +75,9 @@ export class DeviceDetailComponent implements OnInit {
     })
   }
 
-  sendPowerAction (action: number): void {
+  sendPowerAction(action: number): void {
     this.isLoading = true
-    this.devicesService.sendPowerAction(this.deviceId, action).pipe(
+    this.devicesService.sendPowerAction(this.deviceId, action, true).pipe(
       catchError(err => {
         // TODO: handle error better
         console.log(err)
@@ -92,7 +93,16 @@ export class DeviceDetailComponent implements OnInit {
     })
   }
 
-  async navigateTo (path: string): Promise<void> {
+  async navigateTo(path: string): Promise<void> {
     await this.router.navigate([`/devices/${this.deviceId}/${path}`])
   }
+
+  onSelectAction = (): void => {
+    this.showSol = !this.showSol
+  }
+
+  deviceStatus = (state: number) => {
+    this.deviceState = state
+  }
+
 }
