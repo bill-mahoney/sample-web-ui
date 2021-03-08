@@ -18,6 +18,9 @@
         <button mat-icon-button matTooltip="Restart the device" (click)="sendPowerAction(8)">
             <mat-icon>restart_alt</mat-icon>
         </button>
+        <button mat-icon-button matTooltip="Connect KVM" (click)="showKVMScreen()">
+            <mat-icon>tv</mat-icon>
+        </button>
         <button mat-icon-button [matMenuTriggerFor]="menu">
             <mat-icon>more_vert</mat-icon>
         </button>
