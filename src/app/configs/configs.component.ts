@@ -54,16 +54,16 @@ export class ConfigsComponent implements OnInit {
       if (result === true) {
         this.isLoading = true
         this.configsService.delete(name).pipe(
-          catchError(err => {
-            this.snackBar.open($localize`Error deleting CIRA config`, undefined, SnackbarDefaults.defaultError)
-            return throwError(err)
-          }),
           finalize(() => {
             this.isLoading = false
           })
         ).subscribe(data => {
           this.getData()
           this.snackBar.open($localize`CIRA config deleted successfully`, undefined, SnackbarDefaults.defaultSuccess)
+        },
+        error => {
+          this.snackBar.open($localize`${error.error.message}`, undefined, SnackbarDefaults.defaultError)
+          return throwError(error)
         })
       }
     })

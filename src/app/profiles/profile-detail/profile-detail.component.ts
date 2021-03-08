@@ -7,7 +7,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 import { of, throwError } from 'rxjs'
-import { catchError, finalize } from 'rxjs/operators'
+import { finalize } from 'rxjs/operators'
 import { ConfigsService } from 'src/app/configs/configs.service'
 import Constants from 'src/app/shared/config/Constants'
 import SnackbarDefaults from 'src/app/shared/config/snackBarDefault'
@@ -47,29 +47,26 @@ export class ProfileDetailComponent implements OnInit {
       if (params.name != null && params.name !== '') {
         this.isLoading = true
         this.profilesService.getRecord(params.name).pipe(
-          catchError(err => {
-            // TODO: handle error better
-            console.log(err)
-            this.snackBar.open($localize`Error retrieving profile`, undefined, SnackbarDefaults.defaultError)
-            return throwError(err)
-          }), finalize(() => {
+          finalize(() => {
             this.isLoading = false
           })).subscribe(data => {
           this.isEdit = true
           this.profileForm.controls.profileName.disable()
           this.pageTitle = data.profileName
           this.profileForm.patchValue(data)
+        },
+        error => {
+          this.snackBar.open($localize`${error.error.message}`, undefined, SnackbarDefaults.defaultError)
+          return throwError(error)
         })
       }
     })
 
-    this.configsService.getData().pipe(catchError(err => {
-      // TODO: handle error better
-      console.log(err)
-      this.snackBar.open($localize`Error retrieving CIRA configs`, undefined, SnackbarDefaults.defaultError)
-      return of([])
-    })).subscribe(data => {
+    this.configsService.getData().subscribe(data => {
       this.ciraConfigurations = data
+    }, error => {
+      this.snackBar.open($localize`${error.error.message}`, undefined, SnackbarDefaults.defaultError)
+      return of([])
     })
 
     this.profileForm.controls.generateRandomPassword?.valueChanges.subscribe(value => this.generateRandomPasswordChange(value))
@@ -115,24 +112,27 @@ export class ProfileDetailComponent implements OnInit {
       this.isLoading = true
       const result: any = Object.assign({}, this.profileForm.getRawValue())
       let request
+      let reqType: string
       if (this.isEdit) {
         request = this.profilesService.update(result)
+        reqType = 'updated'
       } else {
         request = this.profilesService.create(result)
+        reqType = 'created'
       }
       request.pipe(
-        catchError(err => {
-        // TODO: handle error better
-          console.log(err)
-          this.snackBar.open($localize`Error creating/updating profile`, undefined, SnackbarDefaults.defaultError)
-          return throwError(err)
-        }), finalize(() => {
+        finalize(() => {
           this.isLoading = false
-        })).subscribe(data => {
-        this.snackBar.open($localize`Profile created/updated successfully`, undefined, SnackbarDefaults.defaultSuccess)
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.router.navigate(['/profiles'])
-      })
+        }))
+        .subscribe(data => {
+          this.snackBar.open($localize`Profile ${reqType} successfully`, undefined, SnackbarDefaults.defaultSuccess)
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+          this.router.navigate(['/profiles'])
+        },
+        error => {
+          this.snackBar.open($localize`${error.error.message}`, undefined, SnackbarDefaults.defaultError)
+          return throwError(error)
+        })
     }
   }
 }

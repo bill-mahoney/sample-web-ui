@@ -7,7 +7,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 import { of, throwError } from 'rxjs'
-import { catchError, finalize } from 'rxjs/operators'
+import { finalize } from 'rxjs/operators'
 import SnackbarDefaults from 'src/app/shared/config/snackBarDefault'
 import { DomainsService } from '../domains.service'
 
@@ -36,18 +36,18 @@ export class DomainDetailComponent implements OnInit {
       // hmm -- this would actually prevent editing of a domain called new
       if (params.name != null && params.name !== '') {
         this.isLoading = true
-        this.domainsService.getRecord(params.name).pipe(catchError(err => {
-          // TODO: handle error better
-          console.log(err)
-          this.snackBar.open($localize`Error loading domain profile`, undefined, SnackbarDefaults.defaultError)
-          return throwError(err)
-        }), finalize(() => {
-          this.isLoading = false
-        })).subscribe(data => {
+        this.domainsService.getRecord(params.name).pipe(
+          finalize(() => {
+            this.isLoading = false
+          })).subscribe(data => {
           this.isEdit = true
           this.domainForm.controls.profileName.disable()
           this.pageTitle = data.profileName
           this.domainForm.patchValue(data)
+        },
+        error => {
+          this.snackBar.open($localize`${error.error.message}`, undefined, SnackbarDefaults.defaultError)
+          return throwError(error)
         })
       }
     })
@@ -59,26 +59,26 @@ export class DomainDetailComponent implements OnInit {
     if (this.domainForm.valid) {
       this.isLoading = true
       let request
-
+      let reqType: string
       if (this.isEdit) {
         request = this.domainsService.update(result)
+        reqType = 'updated'
       } else {
         request = this.domainsService.create(result)
+        reqType = 'created'
       }
-
       request.pipe(
-        catchError(err => {
-          // TODO: handle error better
-          console.log(err)
-          this.snackBar.open($localize`Error creating/updating domain profile`, undefined, SnackbarDefaults.defaultError)
-          return of(null)
-        }),
         finalize(() => {
           this.isLoading = false
-        })).subscribe(data => {
-        this.snackBar.open($localize`Domain profile created/updated successfully`, undefined, SnackbarDefaults.defaultSuccess)
+        })
+      ).subscribe(data => {
+        this.snackBar.open($localize`Domain profile ${reqType} successfully`, undefined, SnackbarDefaults.defaultSuccess)
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigate(['/domains'])
+      },
+      error => {
+        this.snackBar.open($localize`${error.error.message}`, undefined, SnackbarDefaults.defaultError)
+        return of(null)
       })
     }
   }

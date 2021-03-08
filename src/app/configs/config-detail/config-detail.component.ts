@@ -47,12 +47,7 @@ export class ConfigDetailComponent implements OnInit {
       if (params.name != null && params.name !== '') {
         this.isLoading = true
         this.configsService.getRecord(params.name).pipe(
-          catchError(err => {
-            // TODO: handle error better
-            console.log(err)
-            this.snackBar.open($localize`Error loading CIRA config`, undefined, SnackbarDefaults.defaultError)
-            return throwError(err)
-          }), finalize(() => {
+          finalize(() => {
             this.isLoading = false
           })).subscribe(data => {
           this.isEdit = true
@@ -60,6 +55,10 @@ export class ConfigDetailComponent implements OnInit {
           this.configForm.controls.configName.disable()
           this.configForm.patchValue(data)
           this.configForm.patchValue({ serverAddressFormat: data.serverAddressFormat.toString() })
+        },
+        error => {
+          this.snackBar.open($localize`${error.error.message}`, undefined, SnackbarDefaults.defaultError)
+          return throwError(error)
         })
       }
     })
@@ -147,7 +146,8 @@ export class ConfigDetailComponent implements OnInit {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.router.navigate(['/ciraconfigs'])
         }, err => {
-          console.log(err)
+          this.snackBar.open($localize`${err.error.message}`, undefined, SnackbarDefaults.defaultError)
+          return throwError(err)
         })
       } else {
         delete result.autoLoad
@@ -158,7 +158,8 @@ export class ConfigDetailComponent implements OnInit {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.router.navigate(['/ciraconfigs'])
         }, err => {
-          console.log(err)
+          this.snackBar.open($localize`${err.error.message}`, undefined, SnackbarDefaults.defaultError)
+          return throwError(err)
         })
       }
     }
