@@ -51,7 +51,7 @@ export class DeviceDetailComponent implements OnInit {
     }
   ]
 
-  public showSol: any = false
+  public showSol: boolean = false
   public deviceState: number = 0
   constructor (public snackBar: MatSnackBar, public readonly activatedRoute: ActivatedRoute, public readonly router: Router, private readonly devicesService: DevicesService) {
 

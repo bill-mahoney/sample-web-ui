@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
-import { ActivatedRoute, convertToParamMap } from '@angular/router'
+import { ActivatedRoute } from '@angular/router'
+import { of } from 'rxjs'
 import { SolComponent } from './sol.component'
 
 describe('SolComponent', () => {
@@ -12,7 +13,7 @@ describe('SolComponent', () => {
       providers: [{
         provide: ActivatedRoute,
         useValue:
-          { snapshot: { paramMap: convertToParamMap({ id: '99-88-77' }) } }
+         { params: of({ id: 'guid' }) }
       }]
     })
       .compileComponents()

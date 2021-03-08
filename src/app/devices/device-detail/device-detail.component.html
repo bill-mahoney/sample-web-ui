@@ -32,7 +32,7 @@
 
 <!-- <app-kvm></app-kvm> -->
 <mat-sidenav-container autosize>
-    <app-sol *ngIf="showSol" [(solStatus)]="showSol" (deviceStatus)="deviceStatus($event)"></app-sol>
+    <app-sol *ngIf="showSol" (solStatus)="showSol" (deviceStatus)="deviceStatus($event)"></app-sol>
     <mat-sidenav class="example-sidenav" mode="side" position="end" opened>
         <h3 class="mat-h3">Device Audit Log ({{auditLogData.totalCnt}} entries)</h3>
         <mat-vertical-stepper #stepper>

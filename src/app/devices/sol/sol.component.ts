@@ -11,23 +11,26 @@ import { environment } from 'src/environments/environment'
   encapsulation: ViewEncapsulation.None
 })
 export class SolComponent implements OnInit {
-  @Input() solStatus: any = false
+  @Input() solStatus: boolean = false
   @Output() deviceStatus: EventEmitter<number> = new EventEmitter<number>()
-  public term: Terminal | any
-  public container!: HTMLElement | any
-  public terminal: AmtTerminal | any
+  public term: any
+  public container!: any
+  public terminal: any
   public logger: ConsoleLogger = new ConsoleLogger(LogLevel.ERROR)
-  public redirector: AMTRedirector | any
+  public redirector: any
   public server: string = environment.mpsServer.replace('https://', '')
-  public uuid: string | any = this.route.snapshot.paramMap.get('id')
-  public dataProcessor: TerminalDataProcessor | any
+  public uuid: string = ''
+  public dataProcessor: any
   public deviceState: number = 0
 
-  constructor (private readonly route: ActivatedRoute) { }
+  constructor (private readonly activatedRoute: ActivatedRoute) { }
 
   ngOnInit (): void {
+    this.activatedRoute.params.subscribe(params => {
+      this.uuid = params.id
+    })
     this.init()
-    if (typeof this.redirector !== 'undefined') {
+    if (this.redirector !== 'null') {
       if (this.deviceState === 0) {
         this.redirector.start(WebSocket)
       }
@@ -37,9 +40,7 @@ export class SolComponent implements OnInit {
   ngAfterViewInit (): void {
     this.term.open(this.container)
     this.term.onData((data: any) => {
-      // console.log(data, "data")
       this.handleKeyPress(data)
-      // this.handleWriteToXterm(data)
     })
     this.term.attachCustomKeyEventHandler((e: any) => {
       e.stopPropagation()
@@ -80,7 +81,7 @@ export class SolComponent implements OnInit {
   handleClearTerminal = (): any => this.term.reset()
 
   onSOLConnect = (e: Event): void => {
-    if (typeof this.redirector !== 'undefined') {
+    if (this.redirector !== 'null') {
       if (this.deviceState === 0) {
         this.startSol()
       } else {
@@ -116,6 +117,7 @@ export class SolComponent implements OnInit {
   }
 
   ngOnDestroy (): void {
-    this.stopSol()
+    this.redirector.start(WebSocket)
+    this.cleanUp()
   }
 }
